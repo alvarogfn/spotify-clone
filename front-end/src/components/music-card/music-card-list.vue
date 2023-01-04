@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { Track } from "@/models/Track";
+  import type { TrackResponse as Track } from "@/models/TrackResponse";
   import MusicCardItem from "./music-card-item.vue";
   interface Props {
     tracks: Track[];
