@@ -1,0 +1,51 @@
+@mixin fontImporter($name, $path) {
+  $fullpath: "../assets/fonts/#{$path}";
+
+  @font-face {
+    font-family: $name;
+    src: url("#{$fullpath}.otf") format("otf"),
+      url("#{$fullpath}.woff") format("woff"),
+      url("#{$fullpath}.woff2") format("woff2"),
+      url("#{$fullpath}.eot") format("eot"),
+      url("#{$fullpath}.svg") format("svg"),
+      url("#{$fullpath}.ttf") format("ttf");
+    font-weight: 400;
+    font-style: normal;
+  }
+}
+
+@mixin fullscreen {
+  height: 100vh;
+  width: 100vw;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+@mixin centralize-with-flex {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin scroll-bar-style {
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ffffff4d;
+    &:hover {
+      background-color: #ffffff9d;
+    }
+
+    &:active {
+      background-color: #ffffffce;
+    }
+  }
+}
