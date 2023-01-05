@@ -11,4 +11,4 @@ export const CALLBACK_APPLICATION_URL =
 export const SESSION_SECRET = process.env.SESSION_SECRET ?? null;
 export const HOST = process.env.HOST ?? null;
 export const PORT = parseInt(process.env.PORT ?? "3000");
-export const DEVELOPMENT = process.env.DEVELOPMENT !== "false";
+export const DEVELOPMENT = process.env.DEVELOPMENT === "true";

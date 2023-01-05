@@ -35,14 +35,12 @@ app.use(handleError);
 
 (async function listen() {
   try {
-    const url = new URL(HOST);
-
     if (DEVELOPMENT) {
       app.listen(PORT, () => {
         console.log("Your app is running: " + HOST);
       });
     } else {
-      app.listen(parseInt(url.port), url.hostname, () => {
+      app.listen(10000, () => {
         console.log("Your app is running: " + HOST);
       });
     }
