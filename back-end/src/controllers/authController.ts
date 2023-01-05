@@ -2,17 +2,17 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { Request, Response } from "express";
 import randomString from "randomstring";
 import { API } from "../API";
-import { HOSTNAME, PORT, CLIENT_ID, APPLICATION_URL } from "../config";
+import { CLIENT_ID, APPLICATION_URL, HOST } from "../config";
 import { TokenResponse } from "../models/auth/TokenResponse";
 import { generateQueryURL } from "../utils/generateQueryURL";
 import generateScope from "../utils/generateScope";
-import { generateURL } from "../utils/generateURL";
 
-const REDIRECT_URI = generateURL({
-  path: "/callback",
-  base: HOSTNAME,
-  port: PORT,
-});
+const REDIRECT_URI = axios
+  .create({
+    url: "/callback",
+    baseURL: HOST,
+  })
+  .getUri();
 
 const SCOPE = generateScope(
   "user-read-recently-played",
