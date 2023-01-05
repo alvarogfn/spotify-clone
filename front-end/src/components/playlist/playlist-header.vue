@@ -46,7 +46,7 @@
     owner: string;
     playing: boolean;
     description: string;
-    type: "favorites" | "playlist" | "album";
+    type?: "favorites" | "playlist" | "album";
   }
 
   const props = withDefaults(defineProps<Props>(), {

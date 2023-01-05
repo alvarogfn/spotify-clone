@@ -38,7 +38,6 @@
   const props = defineProps<Props>();
 
   const hovering = ref(false);
-  const playing = ref(false);
 </script>
 
 <style lang="scss" scoped>

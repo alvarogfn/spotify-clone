@@ -1,4 +1,4 @@
-import type { Track } from "./Track";
+import type { TrackResponse } from "./TrackResponse";
 import type { Context } from "./utils/Context";
 
 export interface RecentlyPlayed {
@@ -8,7 +8,7 @@ export interface RecentlyPlayed {
     before: string;
   };
   items: {
-    track: Track;
+    track: TrackResponse;
     context: Context | null;
     played_at: string;
   }[];

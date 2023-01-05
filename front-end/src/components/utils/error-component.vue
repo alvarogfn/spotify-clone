@@ -17,7 +17,7 @@
     error: boolean;
   }
 
-  const props = defineProps<Props>();
+  defineProps<Props>();
 
   function reload() {
     location.reload();

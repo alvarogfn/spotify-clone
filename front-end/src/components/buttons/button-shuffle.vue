@@ -13,7 +13,7 @@
     shuffle: boolean;
   }
 
-  const props = withDefaults(defineProps<Props>(), {
+  withDefaults(defineProps<Props>(), {
     disabled: true,
   });
 </script>

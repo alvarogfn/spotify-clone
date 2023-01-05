@@ -21,7 +21,7 @@
           <playlist-tracks
             class="view-playlist__tracks"
             :tracks="playlist!.tracks"
-            :playing-id="trackPlayingId"
+            :playing-id="trackPlayingId ?? undefined"
             :is-playing="playerStore.controls.playing"
             @play="play"
             @pause="pause"
@@ -75,7 +75,8 @@
   });
 
   const trackPlayingId = computed(() => {
-    if (id.value === playerStore.context?.id) return playerStore.track.id;
+    if (id.value !== playerStore.context?.id) return null;
+    return playerStore.track.id;
   });
 
   function play(uri?: string, id?: string) {

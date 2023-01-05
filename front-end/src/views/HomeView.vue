@@ -2,7 +2,11 @@
   <view-with-header>
     <main class="categories">
       <loading-component :loading="loading" class="categories__loading">
-        <section class="categories__item" v-for="category in categories">
+        <section
+          class="categories__item"
+          v-for="(category, index) in categories"
+          :key="index"
+        >
           <header class="categories__header">
             <h1 class="categories__title">{{ category.title }}</h1>
             <router-link class="categories__open-all" to="/"
@@ -23,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, watch } from "vue";
+  import { ref, onMounted } from "vue";
   import ViewWithHeader from "../components/utils/view-with-header.vue";
   import { useUserStore } from "@/stores/user";
   import { usePlayerStore } from "@/stores/player";

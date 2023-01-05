@@ -29,7 +29,7 @@
   import ProfileCard from "../profile-card.vue";
 
   interface Props {
-    scrollPosition: number;
+    scrollPosition?: number;
     username?: string;
     avatar?: string;
   }

@@ -1,5 +1,4 @@
 import type { PlaybackState } from "@/models/PlaybackState";
-import type { Shuffle } from "@/models/utils/Shuffle";
 import { defineStore } from "pinia";
 import { useAuthStore } from "./auth";
 

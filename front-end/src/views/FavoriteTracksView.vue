@@ -13,7 +13,7 @@
       />
       <playlist-tracks
         class="loved__tracks"
-        :playing-id="playingTrack"
+        :playing-id="playingTrack ?? undefined"
         :tracks="userStore.favorites"
         :is-playing="playerStore.controls.playing"
         @play="play"
@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
   import { usePlayerStore } from "@/stores/player";
-  import { computed, watch } from "vue";
+  import { computed } from "vue";
 
   import PlaylistHeader from "../components/playlist/playlist-header.vue";
   import ViewWithHeader from "../components/utils/view-with-header.vue";
@@ -44,7 +44,8 @@
   });
 
   const playingTrack = computed(() => {
-    if (isPlaylistPlaying) return playerStore.track.id;
+    if (!isPlaylistPlaying.value) return null;
+    return playerStore.track.id;
   });
 
   function play(uri: string, id: string) {

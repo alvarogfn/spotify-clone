@@ -17,9 +17,9 @@
   import { ref, computed, watch } from "vue";
   import InputScrollBar from "../utils/input-scroll-bar.vue";
   interface Props {
-    duration: number;
-    progress: number;
-    playing: boolean;
+    duration?: number;
+    progress?: number;
+    playing?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -27,7 +27,7 @@
     progress: 0,
     playing: true,
   });
-  const emit = defineEmits<{ (e: "newPosition", value: number): void }>();
+  const emit = defineEmits<{ (e: "new-position", value: number): void }>();
 
   const position = ref(props.progress);
 
@@ -44,7 +44,7 @@
   });
 
   function emitPosition(newPosition: number) {
-    emit("newPosition", (newPosition * props.duration) / 100);
+    emit("new-position", (newPosition * props.duration) / 100);
   }
 </script>
 

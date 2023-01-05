@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
   interface Props {
-    playlists: {
+    playlists?: {
       name: string;
       id: string;
     }[];

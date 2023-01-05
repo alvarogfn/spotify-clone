@@ -15,7 +15,7 @@
   import type { TrackResponse as Track } from "@/models/TrackResponse";
   import MusicCardItem from "./music-card-item.vue";
   interface Props {
-    tracks: Track[];
+    tracks?: Track[];
   }
 
   const props = withDefaults(defineProps<Props>(), {

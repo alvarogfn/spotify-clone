@@ -1,6 +1,6 @@
 <template>
-  <template v-if="props.loading" :class="props.class">
-    <div class="loading">
+  <template v-if="props.loading">
+    <div class="loading" :class="props.class">
       <div class="loading__dot"></div>
       <div class="loading__dot"></div>
       <div class="loading__dot"></div>

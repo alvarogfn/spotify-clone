@@ -1,11 +1,7 @@
 <template>
   <section class="tracks">
     <ul class="tracks__list">
-      <li
-        class="tracks__item"
-        v-for="(track, index) in props.tracks"
-        :key="track.id"
-      >
+      <li class="tracks__item" v-for="track in props.tracks" :key="track.id">
         <button
           class="tracks__button"
           @click="
@@ -31,7 +27,7 @@
     tracks: TrackResponseProp[];
     uri?: string;
     playingId?: string;
-    isPlaying: boolean;
+    isPlaying?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {

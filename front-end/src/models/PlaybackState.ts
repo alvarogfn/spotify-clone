@@ -1,8 +1,3 @@
-import type { TrackResponse } from "./TrackResponse";
-import type { Actions } from "./utils/Actions";
-import type { Context } from "./utils/Context";
-import type { Device } from "./utils/Device";
-
 export interface PlaybackState {
   track: {
     name: string;

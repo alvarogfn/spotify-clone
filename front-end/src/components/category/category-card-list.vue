@@ -20,7 +20,7 @@
   import CategoryCardItem from "./category-card-item.vue";
 
   interface Props {
-    tracks: {
+    tracks?: {
       track: TrackResponse;
       context: string;
     }[];
