@@ -39,7 +39,7 @@ export function auth(req: Request, res: Response, next: NextFunction) {
   try {
     const state = randomString.generate(16);
 
-    const authURL = API.auth.getUri({
+    const authURL = spotify.getUri({
       url: "/authorize",
       params: {
         response_type: "code",
