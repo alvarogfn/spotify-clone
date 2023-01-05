@@ -2,7 +2,7 @@ import express from "express";
 import session from "express-session";
 import routes from "./routes";
 import cors from "cors";
-import { HOSTNAME, PORT } from "./config";
+import { PORT, SESSION_SECRET } from "./config";
 import logError from "./middlewares/logError";
 import handleError from "./middlewares/handleError";
 import morgan from "morgan";
@@ -27,7 +27,7 @@ declare module "express-session" {
 }
 
 app.use(
-  session({ secret: "123456789", resave: false, saveUninitialized: false })
+  session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false })
 );
 
 app.use(routes);
@@ -35,10 +35,7 @@ app.use(routes);
 app.use(logError);
 app.use(handleError);
 
-const hostname = HOSTNAME ?? "localhost";
-const port = PORT ?? 3000;
-
-app.listen(port, hostname, () => {
-  const url = `http://${hostname}:${port}`;
+app.listen(PORT, () => {
+  const url = `http://localhost:${PORT}`;
   console.log("Your app is running: " + url);
 });

@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon",
-    "build": "rimraf ./build && tsc && node build/index.js"
+    "prestart": "rimraf ./build && tsc",
+    "start": "node build/index.js",
+    "build": "rimraf ./build && tsc"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +20,7 @@
     "@types/randomstring": "^1.1.8",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
+    "@types/express-session": "^1.17.5",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
@@ -31,7 +34,6 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@types/express-session": "^1.17.5",
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.2",

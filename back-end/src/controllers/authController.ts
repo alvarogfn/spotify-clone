@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { Request, Response } from "express";
 import randomString from "randomstring";
 import { API } from "../API";
@@ -25,17 +25,17 @@ const SCOPE = generateScope(
   "playlist-read-private"
 );
 
-const SPOTIFY_AUTH_ENDPOINT = "https://accounts.spotify.com";
-
 export function auth(req: Request, res: Response) {
   const state = randomString.generate(16);
-
-  const authURL = generateQueryURL(`${SPOTIFY_AUTH_ENDPOINT}/authorize`, {
-    response_type: "code",
-    client_id: CLIENT_ID,
-    scope: SCOPE,
-    redirect_uri: REDIRECT_URI,
-    state,
+  const authURL = API.auth.getUri({
+    url: "/authorize",
+    params: {
+      response_type: "code",
+      client_id: CLIENT_ID,
+      scope: SCOPE,
+      redirect_uri: REDIRECT_URI,
+      state,
+    },
   });
 
   req.session.data = { state, authURL };
@@ -48,13 +48,20 @@ export function callback(req: Request, res: Response) {
   const state = req.query.state || null;
   const error = (req.query.error as string) || null;
 
-  if (state === null || state !== req.session.data?.state)
-    return res.redirect(
-      generateQueryURL(APPLICATION_URL, { error: "state_mismatch" })
-    );
+  if (state === null || state !== req.session.data?.state) {
+    const URL = axios
+      .create({ url: APPLICATION_URL, params: { error: "state_mismatch" } })
+      .getUri();
+
+    return res.redirect(URL);
+  }
 
   if (error !== null) {
-    return res.redirect(generateQueryURL(APPLICATION_URL, { error }));
+    const URL = axios
+      .create({ url: APPLICATION_URL, params: { error } })
+      .getUri();
+
+    return res.redirect(URL);
   }
 
   const body = {
@@ -74,7 +81,7 @@ export function callback(req: Request, res: Response) {
       );
       if (response.data && req.session.data?.refreshToken)
         req.session.data.refreshToken = response.data.refresh_token;
-      res.redirect(
+      return res.redirect(
         generateQueryURL(APPLICATION_URL, {
           token: response.data.access_token,
           expiration: response.data.expires_in.toString(),
@@ -84,11 +91,15 @@ export function callback(req: Request, res: Response) {
       if (e instanceof AxiosError) {
         console.log(e.response?.data.body);
       }
-      res.redirect(
-        generateQueryURL(APPLICATION_URL, {
-          error: "server_broken",
+
+      const url = axios
+        .create({
+          url: APPLICATION_URL,
+          params: { error: "server_broken" },
         })
-      );
+        .getUri();
+
+      return res.redirect(url);
     }
   })();
 }
