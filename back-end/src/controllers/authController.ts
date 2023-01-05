@@ -9,7 +9,6 @@ import {
 } from "../config";
 import generateScope from "../utils/generateScope";
 import randomString from "randomstring";
-import { API } from "../API";
 import { HTTPError } from "../Errors/Errors";
 import { spotify } from "../api/spotify";
 
@@ -118,7 +117,7 @@ export function refresh(
         refresh_token: req.query.refresh_token,
       };
 
-      const response = await API.auth.post(
+      const response = await spotify.post(
         "/token",
         new URLSearchParams(body).toString()
       );
