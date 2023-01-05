@@ -1,9 +1,9 @@
-export declare module Express {
-  export interface Session {
-    data: {
-      state: string;
-      authURL?: string;
-      refreshToken?: string;
-    };
+import session from "express-session";
+
+declare module "express-session" {
+  export interface SessionData {
+    STATE: string;
+    authURL?: string;
+    refreshToken: string;
   }
 }

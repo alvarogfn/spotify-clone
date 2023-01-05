@@ -2,9 +2,9 @@ import express from "express";
 import session from "express-session";
 import routes from "./routes";
 import cors from "cors";
-import { PORT, SESSION_SECRET } from "./config";
-import logError from "./middlewares/logError";
+import { HOST, DEVELOPMENT, PORT, CALLBACK_APPLICATION_URL } from "./config";
 import handleError from "./middlewares/handleError";
+import { randomBytes } from "crypto";
 import morgan from "morgan";
 
 const app = express();
@@ -12,30 +12,41 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: !DEVELOPMENT,
+    origin: !DEVELOPMENT && new URL(CALLBACK_APPLICATION_URL).origin,
+  })
+);
+
 app.use(morgan("tiny"));
 
-declare module "express-session" {
-  // eslint-disable-next-line no-unused-vars
-  interface SessionData {
-    data: {
-      state: string;
-      authURL?: string;
-      refreshToken?: string;
-    };
-  }
-}
-
 app.use(
-  session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false })
+  session({
+    secret: randomBytes(30).toString("hex"),
+    saveUninitialized: false,
+    resave: false,
+  })
 );
 
 app.use(routes);
 
-app.use(logError);
 app.use(handleError);
 
-app.listen(PORT, () => {
-  const url = `http://localhost:${PORT}`;
-  console.log("Your app is running: " + url);
-});
+(async function listen() {
+  try {
+    const url = new URL(HOST);
+
+    if (DEVELOPMENT) {
+      app.listen(PORT, () => {
+        console.log("Your app is running: " + HOST);
+      });
+    } else {
+      app.listen(parseInt(url.port), url.hostname, () => {
+        console.log("Your app is running: " + HOST);
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+})();

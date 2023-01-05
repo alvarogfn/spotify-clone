@@ -1,18 +1,30 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { Request, Response } from "express";
+import axios from "axios";
+import { NextFunction, Request, Response } from "express";
+import {
+  CALLBACK_APPLICATION_URL,
+  CLIENT_ID,
+  DEVELOPMENT,
+  HOST,
+  PORT,
+} from "../config";
+import generateScope from "../utils/generateScope";
 import randomString from "randomstring";
 import { API } from "../API";
-import { CLIENT_ID, APPLICATION_URL, HOST } from "../config";
-import { TokenResponse } from "../models/auth/TokenResponse";
-import { generateQueryURL } from "../utils/generateQueryURL";
-import generateScope from "../utils/generateScope";
+import { HTTPError } from "../Errors/Errors";
+import { spotify } from "../api/spotify";
 
-const REDIRECT_URI = axios
-  .create({
-    url: "/callback",
-    baseURL: HOST,
-  })
-  .getUri();
+declare module "express-session" {
+  export interface SessionData {
+    STATE: string;
+    authURL?: string;
+    refreshToken: string;
+  }
+}
+
+const REDIRECT_URI = axios.getUri({
+  baseURL: DEVELOPMENT ? "http://localhost:" + PORT : HOST,
+  url: "/callback",
+});
 
 const SCOPE = generateScope(
   "user-read-recently-played",
@@ -21,116 +33,99 @@ const SCOPE = generateScope(
   "user-modify-playback-state",
   "user-library-read",
   "user-read-playback-state",
-  "playlist-read-collaborative",
-  "playlist-read-private"
+  "playlist-read-collaborative"
 );
 
-export function auth(req: Request, res: Response) {
-  const state = randomString.generate(16);
-  const authURL = API.auth.getUri({
-    url: "/authorize",
-    params: {
-      response_type: "code",
-      client_id: CLIENT_ID,
-      scope: SCOPE,
-      redirect_uri: REDIRECT_URI,
-      state,
-    },
-  });
+export function auth(req: Request, res: Response, next: NextFunction) {
+  try {
+    const state = randomString.generate(16);
 
-  req.session.data = { state, authURL };
+    const authURL = API.auth.getUri({
+      url: "/authorize",
+      params: {
+        response_type: "code",
+        client_id: CLIENT_ID,
+        scope: SCOPE,
+        redirect_uri: REDIRECT_URI,
+        state,
+      },
+    });
 
-  res.redirect(authURL);
+    req.session.STATE = state;
+    req.session.authURL = authURL;
+    req.session.save();
+
+    return res.redirect(authURL);
+  } catch (e) {
+    next(e);
+  }
 }
 
-export function callback(req: Request, res: Response) {
-  const code = req.query.code || null;
-  const state = req.query.state || null;
-  const error = (req.query.error as string) || null;
-
-  if (state === null || state !== req.session.data?.state) {
-    const URL = axios
-      .create({ url: APPLICATION_URL, params: { error: "state_mismatch" } })
-      .getUri();
-
-    return res.redirect(URL);
-  }
-
-  if (error !== null) {
-    const URL = axios
-      .create({ url: APPLICATION_URL, params: { error } })
-      .getUri();
-
-    return res.redirect(URL);
-  }
-
-  const body = {
-    redirect_uri: REDIRECT_URI,
-    code: code as string,
-    grant_type: "authorization_code",
-    code_verifier: state,
-    client_id: CLIENT_ID,
-  };
-
-  (async () => {
-    let response: AxiosResponse<TokenResponse>;
+export function callback(
+  req: Request<{}, {}, {}, { code: string; state: string; error: string }>,
+  res: Response,
+  next: NextFunction
+) {
+  return (async () => {
     try {
-      response = await API.auth.post<TokenResponse>(
-        "/api/token",
-        new URLSearchParams(body).toString()
-      );
-      if (response.data && req.session.data?.refreshToken)
-        req.session.data.refreshToken = response.data.refresh_token;
-      return res.redirect(
-        generateQueryURL(APPLICATION_URL, {
-          token: response.data.access_token,
-          expiration: response.data.expires_in.toString(),
-        })
-      );
-    } catch (e: any) {
-      if (e instanceof AxiosError) {
-        console.log(e.response?.data.body);
+      const code = req.query.code;
+      const state = req.query.state;
+      const error = req.query.error;
+
+      if (error) {
+        throw new HTTPError("Something went wrong", 500);
       }
 
-      const url = axios
-        .create({
-          url: APPLICATION_URL,
-          params: { error: "server_broken" },
-        })
-        .getUri();
+      if (state !== req.session.STATE) {
+        throw new HTTPError("State mismatch", 400);
+      }
 
-      return res.redirect(url);
-    }
-  })();
-}
+      const body = {
+        redirect_uri: REDIRECT_URI,
+        code,
+        grant_type: "authorization_code",
+        code_verifier: state,
+        client_id: CLIENT_ID,
+      };
 
-export function refresh(req: Request, res: Response) {
-  const body = {
-    grant_type: "refresh_token",
-    client_id: CLIENT_ID,
-    refresh_token: req.session.data?.refreshToken,
-  };
+      const response = await spotify.post<{}>(
+        "/token",
+        new URLSearchParams(body).toString()
+      );
 
-  (async () => {
-    let response: AxiosResponse<TokenResponse>;
-    try {
-      response = await API.auth.post<TokenResponse>("/api/token", body);
-
-      if (response.data && req.session.data?.refreshToken)
-        req.session.data.refreshToken = response.data.refresh_token;
-
-      res.send({
-        token: response.data.access_token,
-        token_expiration: response.data.expires_in,
+      const redirect = axios.getUri({
+        baseURL: CALLBACK_APPLICATION_URL,
+        params: response.data,
       });
+
+      return res.redirect(redirect);
     } catch (e) {
-      res.sendStatus(500);
+      next(e);
     }
   })();
 }
 
-export default {
-  auth,
-  callback,
-  refresh,
-};
+export function refresh(
+  req: Request<{}, {}, {}, { refresh_token: string }>,
+  res: Response,
+  next: NextFunction
+) {
+  (async () => {
+    try {
+      const body = {
+        grant_type: "refresh_token",
+        client_id: CLIENT_ID,
+        refresh_token: req.query.refresh_token,
+      };
+
+      const response = await API.auth.post(
+        "/token",
+        new URLSearchParams(body).toString()
+      );
+
+      res.send(response.data);
+    } catch (e) {
+      next(e);
+    }
+  })();
+}
