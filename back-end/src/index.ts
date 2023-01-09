@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(
   cors({
     credentials: !DEVELOPMENT,
-    origin: !DEVELOPMENT && new URL(CALLBACK_APPLICATION_URL).origin,
+    origin: !DEVELOPMENT ? new URL(CALLBACK_APPLICATION_URL).origin : undefined,
   })
 );
 
@@ -37,7 +37,7 @@ app.use(handleError);
   try {
     if (DEVELOPMENT) {
       app.listen(PORT, () => {
-        console.log("Your app is running: " + HOST);
+        console.log("Your app is running: http://localhost:" + PORT);
       });
     } else {
       app.listen(10000, () => {

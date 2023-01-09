@@ -40,6 +40,7 @@ export function auth(req: Request, res: Response, next: NextFunction) {
     const state = randomString.generate(16);
 
     const authURL = spotify.getUri({
+      baseURL: "https://accounts.spotify.com/",
       url: "/authorize",
       params: {
         response_type: "code",
