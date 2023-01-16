@@ -19,8 +19,8 @@ export const useAuthStore = defineStore("auth", {
     expiration: 0,
     authenticated: false,
     error: undefined,
-    endpointForAuth: "http://localhost:3000/login",
-    endpointForResources: "http://localhost:3001",
+    endpointForAuth: "https://api-alvarogfn-spotify-clone.onrender.com/login",
+    endpointForResources: "https://api.spotify.com/v1",
   }),
   getters: {
     bearerToken(state) {
